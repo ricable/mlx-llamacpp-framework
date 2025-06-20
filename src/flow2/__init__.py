@@ -29,8 +29,13 @@ __version__ = "1.0.0"
 __author__ = "Claude Code Assistant"
 __description__ = "AI Model Training and Inference Toolkit with Flash Attention"
 
-# Core imports
-from .core.flash_attention import OptimizedMLXMultiHeadAttention, FlashAttentionBenchmark
+# Core imports (conditional)
+try:
+    from .core import OptimizedMLXMultiHeadAttention, FlashAttentionBenchmark, FLASH_ATTENTION_AVAILABLE
+except ImportError:
+    OptimizedMLXMultiHeadAttention = None
+    FlashAttentionBenchmark = None
+    FLASH_ATTENTION_AVAILABLE = False
 
 # Framework detection
 try:
@@ -55,6 +60,7 @@ if LLAMACPP_AVAILABLE:
 __all__ = [
     "OptimizedMLXMultiHeadAttention",
     "FlashAttentionBenchmark",
+    "FLASH_ATTENTION_AVAILABLE",
     "MLX_AVAILABLE", 
     "LLAMACPP_AVAILABLE",
 ]
