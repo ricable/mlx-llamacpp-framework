@@ -221,7 +221,7 @@ Examples:
                        help="Save model every N iterations")
     parser.add_argument("--eval-batches", type=int, default=5,
                        help="Number of batches for evaluation")
-    parser.add_argument("--output-dir", type=str, default="./finetune_output_flash",
+    parser.add_argument("--output-dir", type=str, default="./examples/outputs",
                        help="Output directory for fine-tuned model")
     parser.add_argument("--verbose", action="store_true",
                        help="Enable verbose logging")

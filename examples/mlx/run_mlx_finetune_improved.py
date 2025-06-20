@@ -50,9 +50,9 @@ def build_parser():
     # Model and data arguments
     parser.add_argument("--model", default="./models/mlx/tinyllama-1.1b-chat", 
                        help="Path to the local model directory or Hugging Face repo")
-    parser.add_argument("--data", default="./finetune_data", 
+    parser.add_argument("--data", default="./examples/data", 
                        help="Directory with {train, valid, test}.jsonl files")
-    parser.add_argument("--output-dir", default="./finetune_output", 
+    parser.add_argument("--output-dir", default="./examples/outputs", 
                        help="Output directory for fine-tuned adapters")
     
     # Dataset preparation arguments

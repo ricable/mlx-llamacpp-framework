@@ -15,7 +15,7 @@ def prepare_training_data():
     print("🔄 Preparing training data...")
     
     # Create data directory
-    os.makedirs('./finetune_data', exist_ok=True)
+    os.makedirs('./examples/data', exist_ok=True)
     
     # Download quotes dataset
     print("📦 Downloading quotes dataset from Hugging Face...")
@@ -38,11 +38,11 @@ def prepare_training_data():
             val_data.append(entry)
     
     # Save datasets
-    with open('./finetune_data/train.jsonl', 'w') as f:
+    with open('./examples/data/train.jsonl', 'w') as f:
         for entry in train_data:
             f.write(json.dumps(entry) + '\n')
     
-    with open('./finetune_data/valid.jsonl', 'w') as f:
+    with open('./examples/data/valid.jsonl', 'w') as f:
         for entry in val_data:
             f.write(json.dumps(entry) + '\n')
     
@@ -64,7 +64,7 @@ def run_mlx_lora_finetune():
     # Fine-tuning parameters
     params = {
         "--model": model_path,
-        "--data": "./finetune_data",
+        "--data": "./examples/data",
         "--train": "",
         "--fine-tune-type": "lora",
         "--batch-size": "1",
@@ -72,7 +72,7 @@ def run_mlx_lora_finetune():
         "--learning-rate": "1e-4",
         "--steps-per-report": "5",
         "--steps-per-eval": "20",
-        "--adapter-path": "./finetune_output/quotes_lora_adapter",
+        "--adapter-path": "./examples/outputs/quotes_lora_adapter",
         "--max-seq-length": "512",
         "--grad-checkpoint": "",
         "--seed": "42"
@@ -89,7 +89,7 @@ def run_mlx_lora_finetune():
     print(f"📊 System info: {psutil.cpu_count()} cores, {psutil.virtual_memory().total // (1024**3)}GB RAM")
     
     # Create output directory
-    os.makedirs("./finetune_output", exist_ok=True)
+    os.makedirs("./examples/outputs", exist_ok=True)
     
     # Record start time and memory
     start_time = time.time()
@@ -154,7 +154,7 @@ def test_finetuned_model():
         
         # TODO: Load and test LoRA adapter (requires additional MLX-LM functionality)
         print("\n💡 Note: LoRA adapter testing requires additional MLX-LM functionality")
-        print("📁 Fine-tuned adapter saved to: ./finetune_output/quotes_lora_adapter")
+        print("📁 Fine-tuned adapter saved to: ./examples/outputs/quotes_lora_adapter")
         
     except Exception as e:
         print(f"❌ Error testing model: {e}")
@@ -185,7 +185,7 @@ def main():
         print(f"✅ Framework: MLX with LoRA")
         print(f"✅ Dataset: {train_count} training, {val_count} validation examples")
         print(f"✅ Training: 50 iterations with LoRA fine-tuning")
-        print(f"✅ Output: ./finetune_output/quotes_lora_adapter")
+        print(f"✅ Output: ./examples/outputs/quotes_lora_adapter")
         print(f"✅ Platform: Apple Silicon with Metal acceleration")
         
     else:
