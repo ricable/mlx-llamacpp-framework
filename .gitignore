@@ -115,18 +115,9 @@ model_manager.log
 quantization.log
 training.log
 
-# Large model files (selectively ignore large models while keeping examples)
-models/*/*.bin
-models/*/*.pt
-models/*/*.pth
-models/*/pytorch_model.bin
-models/cache/
+# Large model files - ignore entire models directory
+models/
 *.pkl
-
-# Safetensors files larger than 100MB (keep small adapters)
-# Note: Git LFS should be used for large model files
-models/*/model.safetensors
-models/*/model-*.safetensors
 
 # Training and fine-tuning temporary outputs
 checkpoints/
