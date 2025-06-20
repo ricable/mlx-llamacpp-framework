@@ -99,13 +99,10 @@ yarn-error.log*
 logs/
 *.log.*
 
-# Models and data (large files)
-models/
-*.safetensors
-*.bin
-*.gguf
+# Large model files (keep small example adapters)
+# models/ - commented out to keep example models
 *.pkl
-*.pt
+*.pt  
 *.pth
 
 # Temporary files
@@ -152,19 +149,24 @@ credentials.json
 # Git
 .git/
 
-# Memory and reports
-memory/data/
-reports/
+# Data and results
+data/results/
 benchmark_results/
 *.benchmark
 
-# Output directories
+# Output directories (keep examples/outputs tracked)
 output/
 results/
-finetune_output*/
 quantized_models/
 
-# Embedded repositories
-metal-flash-attention/.git/
-llama.cpp-setup/.git/
-mlx-setup/.git/
+# Training artifacts (keep example adapters in examples/outputs)
+*.adapters
+checkpoints/
+
+# MLX specific
+*.mlx
+mlx_cache/
+
+# LlamaCpp specific  
+*.gguf.tmp
+llama_cache/

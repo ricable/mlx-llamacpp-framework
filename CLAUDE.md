@@ -1,246 +1,289 @@
-# Claude Code Configuration
+# Flow2: MLX & LlamaCpp Framework
+
+## Project Overview
+Flow2 is a comprehensive AI model training and inference toolkit with support for MLX and LlamaCpp frameworks, Flash Attention optimization, and extensive performance utilities for Apple Silicon.
 
 ## Build Commands
-- `npm run build`: Build the project
-- `npm run test`: Run the full test suite
-- `npm run lint`: Run ESLint and format checks
-- `npm run typecheck`: Run TypeScript type checking
-- `./claude-flow --help`: Show all available commands
+- `python -m pip install -e .`: Install package in development mode
+- `python -m pip install -e .[mlx]`: Install with MLX dependencies  
+- `python -m pip install -e .[llamacpp]`: Install with LlamaCpp dependencies
+- `python -m pip install -e .[all]`: Install with all dependencies
+- `python -m pytest tests/`: Run the test suite
+- `python -c "import flow2; print(flow2.__version__)"`: Verify installation
 
-## Claude-Flow Complete Command Reference
+## Package Structure
+```
+src/flow2/
+├── core/              # Flash Attention & benchmarks
+├── frameworks/        # MLX & LlamaCpp implementations
+│   ├── mlx/          # MLX training, inference, quantization
+│   └── llamacpp/     # LlamaCpp training, inference, quantization  
+├── chat/             # Interactive chat interfaces
+├── performance/      # Benchmarking & analysis tools
+└── utils/            # Model management & utilities
+```
 
-### Core System Commands
-- `./claude-flow start [--ui] [--port 3000] [--host localhost]`: Start orchestration system with optional web UI
-- `./claude-flow status`: Show comprehensive system status
-- `./claude-flow monitor`: Real-time system monitoring dashboard
-- `./claude-flow config <subcommand>`: Configuration management (show, get, set, init, validate)
+## Quick Start
 
-### Agent Management
-- `./claude-flow agent spawn <type> [--name <name>]`: Create AI agents (researcher, coder, analyst, etc.)
-- `./claude-flow agent list`: List all active agents
-- `./claude-flow spawn <type>`: Quick agent spawning (alias for agent spawn)
-
-### Task Orchestration
-- `./claude-flow task create <type> [description]`: Create and manage tasks
-- `./claude-flow task list`: View active task queue
-- `./claude-flow workflow <file>`: Execute workflow automation files
-
-### Memory Management
-- `./claude-flow memory store <key> <data>`: Store persistent data across sessions
-- `./claude-flow memory get <key>`: Retrieve stored information
-- `./claude-flow memory list`: List all memory keys
-- `./claude-flow memory export <file>`: Export memory to file
-- `./claude-flow memory import <file>`: Import memory from file
-- `./claude-flow memory stats`: Memory usage statistics
-- `./claude-flow memory cleanup`: Clean unused memory entries
-
-### SPARC Development Modes
-- `./claude-flow sparc "<task>"`: Run orchestrator mode (default)
-- `./claude-flow sparc run <mode> "<task>"`: Run specific SPARC mode
-- `./claude-flow sparc tdd "<feature>"`: Test-driven development mode
-- `./claude-flow sparc modes`: List all 17 available SPARC modes
-
-Available SPARC modes: orchestrator, coder, researcher, tdd, architect, reviewer, debugger, tester, analyzer, optimizer, documenter, designer, innovator, swarm-coordinator, memory-manager, batch-executor, workflow-manager
-
-### Swarm Coordination
-- `./claude-flow swarm "<objective>" [options]`: Multi-agent swarm coordination
-- `--strategy`: research, development, analysis, testing, optimization, maintenance
-- `--mode`: centralized, distributed, hierarchical, mesh, hybrid
-- `--max-agents <n>`: Maximum number of agents (default: 5)
-- `--parallel`: Enable parallel execution
-- `--monitor`: Real-time monitoring
-- `--output <format>`: json, sqlite, csv, html
-
-### MCP Server Integration
-- `./claude-flow mcp start [--port 3000] [--host localhost]`: Start MCP server
-- `./claude-flow mcp status`: Show MCP server status
-- `./claude-flow mcp tools`: List available MCP tools
-
-### Claude Integration
-- `./claude-flow claude auth`: Authenticate with Claude API
-- `./claude-flow claude models`: List available Claude models
-- `./claude-flow claude chat`: Interactive chat mode
-
-### Session Management
-- `./claude-flow session`: Manage terminal sessions
-- `./claude-flow repl`: Start interactive REPL mode
-
-### Enterprise Features
-- `./claude-flow project <subcommand>`: Project management (Enterprise)
-- `./claude-flow deploy <subcommand>`: Deployment operations (Enterprise)
-- `./claude-flow cloud <subcommand>`: Cloud infrastructure management (Enterprise)
-- `./claude-flow security <subcommand>`: Security and compliance tools (Enterprise)
-- `./claude-flow analytics <subcommand>`: Analytics and insights (Enterprise)
-
-### Project Initialization
-- `./claude-flow init`: Initialize Claude-Flow project
-- `./claude-flow init --sparc`: Initialize with full SPARC development environment
-
-## Quick Start Workflows
-
-### Research Workflow
+### Installation
 ```bash
-# Start a research swarm with distributed coordination
-./claude-flow swarm "Research modern web frameworks" --strategy research --mode distributed --parallel --monitor
+# Clone the repository
+git clone https://github.com/yourusername/mlx-llamacpp-framework.git
+cd mlx-llamacpp-framework
 
-# Or use SPARC researcher mode for focused research
-./claude-flow sparc run researcher "Analyze React vs Vue vs Angular performance characteristics"
+# Install with all dependencies
+pip install -e .[all]
 
-# Store findings in memory for later use
-./claude-flow memory store "research_findings" "Key insights from framework analysis"
+# Or install framework-specific
+pip install -e .[mlx]      # For MLX on Apple Silicon
+pip install -e .[llamacpp] # For LlamaCpp
 ```
 
-### Development Workflow
+### Basic Usage
+```python
+import flow2
+
+# Check available frameworks
+print(f"MLX Available: {flow2.MLX_AVAILABLE}")
+print(f"LlamaCpp Available: {flow2.LLAMACPP_AVAILABLE}")
+print(f"Flash Attention: {flow2.FLASH_ATTENTION_AVAILABLE}")
+
+# MLX usage
+if flow2.MLX_AVAILABLE:
+    from flow2.frameworks.mlx import load_mlx_model, generate_completion
+    
+# LlamaCpp usage  
+if flow2.LLAMACPP_AVAILABLE:
+    from flow2.frameworks.llamacpp import create_llama_model, generate_completion
+```
+
+## Examples & Workflows
+
+### Fine-tuning with MLX
 ```bash
-# Start orchestration system with web UI
-./claude-flow start --ui --port 3000
+# Basic MLX fine-tuning
+cd examples/mlx
+python run_mlx_finetune.py
 
-# Run TDD workflow for new feature
-./claude-flow sparc tdd "User authentication system with JWT tokens"
+# Enhanced fine-tuning with Flash Attention
+python run_mlx_finetune_improved.py --use-flash-attention --prepare-data
 
-# Development swarm for complex projects
-./claude-flow swarm "Build e-commerce API with payment integration" --strategy development --mode hierarchical --max-agents 8 --monitor
-
-# Check system status
-./claude-flow status
+# Flash Attention comparison
+python test_flash_attention_comparison.py
 ```
 
-### Analysis Workflow
+### Benchmarking Workflows
 ```bash
-# Analyze codebase performance
-./claude-flow sparc run analyzer "Identify performance bottlenecks in current codebase"
+# Comprehensive framework comparison
+cd examples/workflows
+bash benchmark_comparison_workflow.sh
 
-# Data analysis swarm
-./claude-flow swarm "Analyze user behavior patterns from logs" --strategy analysis --mode mesh --parallel --output sqlite
+# MLX LoRA workflow
+python mlx_lora_workflow.py
 
-# Store analysis results
-./claude-flow memory store "performance_analysis" "Bottlenecks identified in database queries"
+# LlamaCpp LoRA workflow  
+bash llamacpp_lora_workflow.sh
 ```
 
-### Maintenance Workflow
+### Chat Interfaces
 ```bash
-# System maintenance with safety controls
-./claude-flow swarm "Update dependencies and security patches" --strategy maintenance --mode centralized --monitor
+# MLX chat interface
+python src/flow2/chat/interfaces/cli/mlx_chat.py
 
-# Security review
-./claude-flow sparc run reviewer "Security audit of authentication system"
+# LlamaCpp chat interface
+python src/flow2/chat/interfaces/cli/llamacpp_chat.py
 
-# Export maintenance logs
-./claude-flow memory export maintenance_log.json
+# Web interfaces (Flask-based)
+python src/flow2/chat/interfaces/web/mlx_web.py
+python src/flow2/chat/interfaces/web/llamacpp_web.py
 ```
 
-## Integration Patterns
+## Key Features
 
-### Memory-Driven Coordination
-Use Memory to coordinate information across multiple SPARC modes and swarm operations:
+### 🚀 Multi-Framework Support
+- **MLX**: Optimized for Apple Silicon with Metal acceleration
+- **LlamaCpp**: Cross-platform with CPU/GPU support
+- **Flash Attention**: Memory-efficient attention optimization
 
-```bash
-# Store architecture decisions
-./claude-flow memory store "system_architecture" "Microservices with API Gateway pattern"
+### 🎯 Training & Fine-tuning
+- **LoRA**: Low-rank adaptation fine-tuning
+- **QLoRA**: Quantized LoRA for memory efficiency
+- **Full Fine-tuning**: Complete model retraining
+- **Flash Attention Integration**: Automatic optimization
 
-# All subsequent operations can reference this decision
-./claude-flow sparc run coder "Implement user service based on system_architecture in memory"
-./claude-flow sparc run tester "Create integration tests for microservices architecture"
+### 📊 Performance & Benchmarking
+- **Framework Comparison**: Head-to-head MLX vs LlamaCpp
+- **Quantization Analysis**: Quality vs performance trade-offs
+- **Hardware Scaling**: Multi-core and memory optimization
+- **Interactive Reports**: HTML dashboards with visualizations
+
+### 💬 Chat Interfaces
+- **CLI**: Terminal-based chat with both frameworks
+- **Web**: Browser-based interface with real-time streaming
+- **History**: Persistent conversation management
+- **Templates**: Customizable prompt templates
+
+## Framework-Specific Commands
+
+### MLX Framework
+```python
+from flow2.frameworks.mlx import (
+    finetune_lora,           # LoRA fine-tuning
+    finetune_qlora,          # QLoRA fine-tuning  
+    finetune_full,           # Full fine-tuning
+    load_mlx_model,          # Model loading
+    generate_completion,     # Text generation
+    chat_completion,         # Chat completion
+    quantize_model,          # Model quantization
+    batch_quantize_models    # Batch quantization
+)
 ```
 
-### Multi-Stage Development
-Coordinate complex development through staged execution:
-
-```bash
-# Stage 1: Research and planning
-./claude-flow sparc run researcher "Research authentication best practices"
-./claude-flow sparc run architect "Design authentication system architecture"
-
-# Stage 2: Implementation
-./claude-flow sparc tdd "User registration and login functionality"
-./claude-flow sparc run coder "Implement JWT token management"
-
-# Stage 3: Testing and deployment
-./claude-flow sparc run tester "Comprehensive security testing"
-./claude-flow swarm "Deploy authentication system" --strategy maintenance --mode centralized
+### LlamaCpp Framework
+```python
+from flow2.frameworks.llamacpp import (
+    finetune_lora,          # LoRA fine-tuning
+    apply_lora_adapter,     # LoRA adapter application
+    create_llama_model,     # Model creation
+    generate_completion,    # Text generation
+    chat_completion,        # Chat completion
+    quantize_model,         # Model quantization
+    batch_quantize_models   # Batch quantization
+)
 ```
 
-### Enterprise Integration
-For enterprise environments with additional tooling:
-
-```bash
-# Project management integration
-./claude-flow project create "authentication-system"
-./claude-flow project switch "authentication-system"
-
-# Security compliance
-./claude-flow security scan
-./claude-flow security audit
-
-# Analytics and monitoring
-./claude-flow analytics dashboard
-./claude-flow deploy production --monitor
+### Performance Tools
+```python
+from flow2.performance.benchmark import (
+    framework_comparison,    # Compare MLX vs LlamaCpp
+    quantization_comparison, # Compare quantization methods
+    benchmark_workflow      # Comprehensive benchmarking
+)
 ```
 
-## Advanced Batch Tool Patterns
+## Configuration
 
-### TodoWrite Coordination
-Always use TodoWrite for complex task coordination:
-
-```javascript
-TodoWrite([
-  {
-    id: "architecture_design",
-    content: "Design system architecture and component interfaces",
-    status: "pending",
-    priority: "high",
-    dependencies: [],
-    estimatedTime: "60min",
-    assignedAgent: "architect"
-  },
-  {
-    id: "frontend_development", 
-    content: "Develop React components and user interface",
-    status: "pending",
-    priority: "medium",
-    dependencies: ["architecture_design"],
-    estimatedTime: "120min",
-    assignedAgent: "frontend_team"
-  }
-]);
+### Model Paths
+Models are stored in `models/` directory:
+```
+models/
+├── mlx/                    # MLX format models
+│   ├── tinyllama-1.1b-chat/
+│   └── qwen2.5-1.5b-instruct/
+└── llamacpp/              # GGUF format models
+    ├── tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+    └── qwen2.5-1.5b-instruct-q4_k_m.gguf
 ```
 
-### Task and Memory Integration
-Launch coordinated agents with shared memory:
+### Training Data
+Training datasets in `examples/data/`:
+- `train.jsonl` - Training examples
+- `valid.jsonl` - Validation examples  
+- `test.jsonl` - Test examples
+- Custom datasets supported
 
-```javascript
-// Store architecture in memory
-Task("System Architect", "Design architecture and store specs in Memory");
+### Output Structure
+Training outputs in `examples/outputs/`:
+- `adapters.safetensors` - LoRA/QLoRA adapters
+- `quotes_lora_adapter/` - Example fine-tuned adapter
+- `qwen_enhanced/` - Enhanced model variants
+- `tinyllama_enhanced/` - Enhanced model variants
 
-// Other agents use memory for coordination
-Task("Frontend Team", "Develop UI using Memory architecture specs");
-Task("Backend Team", "Implement APIs according to Memory specifications");
+## Development Guidelines
+
+### Code Style
+- Use ES modules syntax where applicable
+- Follow PEP 8 for Python code
+- Add type hints for all public APIs
+- Include docstrings for all functions
+- Prefer async/await for I/O operations
+
+### Testing
+- Run tests before committing: `pytest tests/`
+- Add tests for new functionality
+- Use meaningful test names
+- Test both MLX and LlamaCpp code paths
+
+### Performance
+- Profile memory usage during training
+- Use Flash Attention when available
+- Optimize for Apple Silicon (MLX) and multi-core (LlamaCpp)
+- Include benchmarks for performance-critical features
+
+## Hardware Requirements
+
+### Recommended for MLX
+- Apple Silicon Mac (M1/M2/M3/M4)
+- 16GB+ unified memory for training
+- macOS 12.0+ (Monterey)
+
+### Recommended for LlamaCpp  
+- Multi-core CPU (8+ cores recommended)
+- 16GB+ RAM for larger models
+- GPU support optional but beneficial
+
+## Examples
+
+### Quick Model Inference
+```python
+import flow2
+
+# MLX inference
+if flow2.MLX_AVAILABLE:
+    from flow2.frameworks.mlx import load_mlx_model, generate_completion
+    model, tokenizer = load_mlx_model("models/mlx/tinyllama-1.1b-chat")
+    response = generate_completion(model, tokenizer, "Hello, how are you?")
+    print(response)
+
+# LlamaCpp inference
+if flow2.LLAMACPP_AVAILABLE:
+    from flow2.frameworks.llamacpp import create_llama_model, generate_completion
+    model = create_llama_model("models/llamacpp/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf")
+    response = generate_completion(model, "Hello, how are you?")
+    print(response)
 ```
 
-## Code Style Preferences
-- Use ES modules (import/export) syntax
-- Destructure imports when possible
-- Use TypeScript for all new code
-- Follow existing naming conventions
-- Add JSDoc comments for public APIs
-- Use async/await instead of Promise chains
-- Prefer const/let over var
+### Fine-tuning Example
+```python
+from flow2.frameworks.mlx import finetune_lora
 
-## Workflow Guidelines
-- Always run typecheck after making code changes
-- Run tests before committing changes
-- Use meaningful commit messages
-- Create feature branches for new functionality
-- Ensure all tests pass before merging
+# Fine-tune with LoRA
+finetune_lora(
+    model_path="models/mlx/tinyllama-1.1b-chat",
+    data_path="examples/data", 
+    output_path="examples/outputs/my_adapter",
+    num_iters=100,
+    learning_rate=1e-4,
+    use_flash_attention=True
+)
+```
 
-## Important Notes
-- **Use TodoWrite extensively** for all complex task coordination
-- **Leverage Task tool** for parallel agent execution on independent work
-- **Store all important information in Memory** for cross-agent coordination
-- **Use batch file operations** whenever reading/writing multiple files
-- **Check .claude/commands/** for detailed command documentation
-- **All swarm operations include automatic batch tool coordination**
-- **Monitor progress** with TodoRead during long-running operations
-- **Enable parallel execution** with --parallel flags for maximum efficiency
+### Benchmarking Example
+```python
+from flow2.performance.benchmark import framework_comparison
 
-This configuration ensures optimal use of Claude Code's batch tools for swarm orchestration and parallel task execution with full Claude-Flow capabilities.
+# Compare frameworks
+results = framework_comparison(
+    mlx_model="models/mlx/tinyllama-1.1b-chat",
+    llamacpp_model="models/llamacpp/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf",
+    prompts=["Test prompt 1", "Test prompt 2"],
+    metrics=["speed", "memory", "quality"]
+)
+print(results)
+```
+
+## Contributing
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new functionality  
+4. Ensure all tests pass
+5. Submit a pull request
+
+## License
+MIT License - see LICENSE file for details
+
+## Acknowledgments
+- MLX team at Apple for the MLX framework
+- LlamaCpp contributors for the inference engine
+- Philip Turner for Metal Flash Attention research
+- Hugging Face for model hosting and tools
