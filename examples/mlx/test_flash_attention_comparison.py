@@ -9,7 +9,7 @@ from mlx_lm import load, generate
 
 # Flash Attention Integration
 try:
-    from flash_attention_mlx import OptimizedMLXMultiHeadAttention, FlashAttentionBenchmark
+    from flow2.core.flash_attention import OptimizedMLXMultiHeadAttention, FlashAttentionBenchmark
     FLASH_ATTENTION_AVAILABLE = True
     print("✅ Flash Attention optimizations available")
 except ImportError:
@@ -139,11 +139,17 @@ def test_inference_performance(model_path, prompt, use_flash_attention=True):
     
     inference_start = time.time()
     try:
-        response = generate(model, tokenizer, prompt, max_tokens=100, verbose=True)
+        # Use verbose=False to get clean response
+        response = generate(model, tokenizer, prompt, max_tokens=100, verbose=False)
         inference_time = time.time() - inference_start
         
+        if response:
+            response = response.strip()
+        else:
+            response = ""
+        
         # Count tokens (rough estimate)
-        response_tokens = len(response.split())
+        response_tokens = len(response.split()) if response else 0
         tokens_per_second = response_tokens / inference_time if inference_time > 0 else 0
         
         print(f"\n📊 RESULTS:")
@@ -171,7 +177,7 @@ def main():
     """Run Flash Attention comparison"""
     
     model_path = "models/mlx/tinyllama-1.1b-chat"
-    prompt = "Explain the benefits of machine learning in 3 sentences."
+    prompt = "The weather today is"
     
     print("🎯 FLASH ATTENTION PERFORMANCE COMPARISON")
     print("=" * 80)

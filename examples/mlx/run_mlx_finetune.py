@@ -15,7 +15,7 @@ def prepare_training_data():
     print("🔄 Preparing training data...")
     
     # Create data directory
-    os.makedirs('./examples/data', exist_ok=True)
+    os.makedirs('./data/datasets', exist_ok=True)
     
     # Download quotes dataset
     print("📦 Downloading quotes dataset from Hugging Face...")
@@ -38,11 +38,11 @@ def prepare_training_data():
             val_data.append(entry)
     
     # Save datasets
-    with open('./examples/data/train.jsonl', 'w') as f:
+    with open('./data/datasets/train.jsonl', 'w') as f:
         for entry in train_data:
             f.write(json.dumps(entry) + '\n')
     
-    with open('./examples/data/valid.jsonl', 'w') as f:
+    with open('./data/datasets/valid.jsonl', 'w') as f:
         for entry in val_data:
             f.write(json.dumps(entry) + '\n')
     
@@ -64,7 +64,7 @@ def run_mlx_lora_finetune():
     # Fine-tuning parameters
     params = {
         "--model": model_path,
-        "--data": "./examples/data",
+        "--data": "./data/datasets",
         "--train": "",
         "--fine-tune-type": "lora",
         "--batch-size": "1",
@@ -72,7 +72,7 @@ def run_mlx_lora_finetune():
         "--learning-rate": "1e-4",
         "--steps-per-report": "5",
         "--steps-per-eval": "20",
-        "--adapter-path": "./examples/outputs/quotes_lora_adapter",
+        "--adapter-path": "./data/outputs/quotes_lora_adapter",
         "--max-seq-length": "512",
         "--grad-checkpoint": "",
         "--seed": "42"
@@ -89,7 +89,7 @@ def run_mlx_lora_finetune():
     print(f"📊 System info: {psutil.cpu_count()} cores, {psutil.virtual_memory().total // (1024**3)}GB RAM")
     
     # Create output directory
-    os.makedirs("./examples/outputs", exist_ok=True)
+    os.makedirs("./data/outputs", exist_ok=True)
     
     # Record start time and memory
     start_time = time.time()

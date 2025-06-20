@@ -50,9 +50,9 @@ def build_parser():
     # Model and data arguments
     parser.add_argument("--model", default="./models/mlx/tinyllama-1.1b-chat", 
                        help="Path to the local model directory or Hugging Face repo")
-    parser.add_argument("--data", default="./examples/data", 
+    parser.add_argument("--data", default="./data/datasets", 
                        help="Directory with {train, valid, test}.jsonl files")
-    parser.add_argument("--output-dir", default="./examples/outputs", 
+    parser.add_argument("--output-dir", default="./data/outputs", 
                        help="Output directory for fine-tuned adapters")
     
     # Dataset preparation arguments
@@ -319,7 +319,116 @@ def create_lora_model(model, args):
     return model
 
 def apply_flash_attention_to_model(model, use_flash_attention=True, block_size=None):
-    \"\"\"\n    Apply Flash Attention optimizations to model attention layers\n    \"\"\"\n    if not use_flash_attention or not FLASH_ATTENTION_AVAILABLE:\n        print(\"\u2139\ufe0f Using standard MLX attention\")\n        return model, 0\n    \n    print(\"\ud83d\ude80 Applying Flash Attention optimizations...\")\n    attention_replacements = 0\n    \n    def replace_attention_recursive(module, name_prefix=\"\"):\n        nonlocal attention_replacements\n        \n        # Handle MLX models which may have different attribute access patterns\n        try:\n            for name in dir(module):\n                if name.startswith('_') or name in ['training', 'parameters', 'modules']:\n                    continue\n                    \n                try:\n                    child = getattr(module, name)\n                    if not isinstance(child, (nn.Module, type(None))):\n                        continue\n                        \n                    full_name = f\"{name_prefix}.{name}\" if name_prefix else name\n                    \n                    # Check if this is an attention layer we should replace\n                    if isinstance(child, nn.MultiHeadAttention):\n                        print(f\"\ud83d\udd04 Replacing {full_name} with Flash Attention\")\n                        \n                        # Create optimized replacement\n                        flash_attention = OptimizedMLXMultiHeadAttention(\n                            child.dims,\n                            child.num_heads,\n                            bias=hasattr(child, 'bias'),\n                            use_flash_attention=True,\n                            block_size=block_size\n                        )\n                        \n                        # Copy weights from original layer\n                        if hasattr(child, 'q_proj') and hasattr(child.q_proj, 'weight'):\n                            flash_attention.q_proj.weight = child.q_proj.weight\n                            flash_attention.k_proj.weight = child.k_proj.weight  \n                            flash_attention.v_proj.weight = child.v_proj.weight\n                            flash_attention.out_proj.weight = child.out_proj.weight\n                            \n                            if hasattr(child.q_proj, 'bias') and child.q_proj.bias is not None:\n                                flash_attention.q_proj.bias = child.q_proj.bias\n                                flash_attention.k_proj.bias = child.k_proj.bias\n                                flash_attention.v_proj.bias = child.v_proj.bias\n                                flash_attention.out_proj.bias = child.out_proj.bias\n                        \n                        # Replace the layer\n                        setattr(module, name, flash_attention)\n                        attention_replacements += 1\n                    else:\n                        # Recursively process child modules\n                        replace_attention_recursive(child, full_name)\n                        \n                except (AttributeError, TypeError):\n                    continue\n                    \n        except (AttributeError, TypeError):\n            pass\n    \n    try:\n        replace_attention_recursive(model)\n        \n        if attention_replacements > 0:\n            print(f\"\u2705 Replaced {attention_replacements} attention layers with Flash Attention\")\n        else:\n            print(\"\u2139\ufe0f No compatible attention layers found for replacement\")\n            \n    except Exception as e:\n        print(f\"\u26a0\ufe0f Flash Attention integration failed: {e}\")\n        print(\"\u2139\ufe0f Continuing with standard MLX attention\")\n    \n    return model, attention_replacements\n\ndef run_attention_benchmark(model, tokenizer, args):\n    \"\"\"\n    Run Flash Attention benchmark before training\n    \"\"\"\n    if not FLASH_ATTENTION_AVAILABLE:\n        print(\"\u26a0\ufe0f Flash Attention not available for benchmarking\")\n        return\n    \n    print(\"\\n\ud83d\udd2c Running Flash Attention benchmark...\")\n    \n    try:\n        # Create benchmark instance\n        benchmark = FlashAttentionBenchmark()\n        \n        # Run focused benchmark for training parameters\n        results = benchmark.benchmark_attention_performance(\n            batch_sizes=[args.batch_size],\n            seq_lengths=[min(args.max_seq_length, 256)],  # Cap at 256 for benchmark\n            head_dims=[64, 128],  # Common head dimensions\n            num_heads=8,\n            num_runs=3\n        )\n        \n        # Print summary\n        benchmark.print_summary()\n        \n        # Save results\n        benchmark_file = Path(args.output_dir) / \"flash_attention_benchmark.json\"\n        benchmark_file.parent.mkdir(parents=True, exist_ok=True)\n        benchmark.save_results(str(benchmark_file))\n        \n    except Exception as e:\n        print(f\"\u26a0\ufe0f Benchmark failed: {e}\")\n\ndef iterate_batches(dataset, tokenizer, batch_size, max_seq_length, train=False):
+    """Apply Flash Attention optimizations to model attention layers"""
+    if not use_flash_attention or not FLASH_ATTENTION_AVAILABLE:
+        print("ℹ️ Using standard MLX attention")
+        return model, 0
+    
+    print("🚀 Applying Flash Attention optimizations...")
+    attention_replacements = 0
+    
+    def replace_attention_recursive(module, name_prefix=""):
+        nonlocal attention_replacements
+        
+        # Handle MLX models which may have different attribute access patterns
+        try:
+            for name in dir(module):
+                if name.startswith('_') or name in ['training', 'parameters', 'modules']:
+                    continue
+                    
+                try:
+                    child = getattr(module, name)
+                    if not isinstance(child, (nn.Module, type(None))):
+                        continue
+                        
+                    full_name = f"{name_prefix}.{name}" if name_prefix else name
+                    
+                    # Check if this is an attention layer we should replace
+                    if isinstance(child, nn.MultiHeadAttention):
+                        print(f"🔄 Replacing {full_name} with Flash Attention")
+                        
+                        # Create optimized replacement
+                        flash_attention = OptimizedMLXMultiHeadAttention(
+                            child.dims,
+                            child.num_heads,
+                            bias=hasattr(child, 'bias'),
+                            use_flash_attention=True,
+                            block_size=block_size
+                        )
+                        
+                        # Copy weights from original layer
+                        if hasattr(child, 'q_proj') and hasattr(child.q_proj, 'weight'):
+                            flash_attention.q_proj.weight = child.q_proj.weight
+                            flash_attention.k_proj.weight = child.k_proj.weight  
+                            flash_attention.v_proj.weight = child.v_proj.weight
+                            flash_attention.out_proj.weight = child.out_proj.weight
+                            
+                            if hasattr(child.q_proj, 'bias') and child.q_proj.bias is not None:
+                                flash_attention.q_proj.bias = child.q_proj.bias
+                                flash_attention.k_proj.bias = child.k_proj.bias
+                                flash_attention.v_proj.bias = child.v_proj.bias
+                                flash_attention.out_proj.bias = child.out_proj.bias
+                        
+                        # Replace the layer
+                        setattr(module, name, flash_attention)
+                        attention_replacements += 1
+                    else:
+                        # Recursively process child modules
+                        replace_attention_recursive(child, full_name)
+                        
+                except (AttributeError, TypeError):
+                    continue
+                    
+        except (AttributeError, TypeError):
+            pass
+    
+    try:
+        replace_attention_recursive(model)
+        
+        if attention_replacements > 0:
+            print(f"✅ Replaced {attention_replacements} attention layers with Flash Attention")
+        else:
+            print("ℹ️ No compatible attention layers found for replacement")
+            
+    except Exception as e:
+        print(f"⚠️ Flash Attention integration failed: {e}")
+        print("ℹ️ Continuing with standard MLX attention")
+    
+    return model, attention_replacements
+
+def run_attention_benchmark(model, tokenizer, args):
+    """Run Flash Attention benchmark before training"""
+    if not FLASH_ATTENTION_AVAILABLE:
+        print("⚠️ Flash Attention not available for benchmarking")
+        return
+    
+    print("\n🔬 Running Flash Attention benchmark...")
+    
+    try:
+        # Create benchmark instance
+        benchmark = FlashAttentionBenchmark()
+        
+        # Run focused benchmark for training parameters
+        results = benchmark.benchmark_attention_performance(
+            batch_sizes=[args.batch_size],
+            seq_lengths=[min(args.max_seq_length, 256)],  # Cap at 256 for benchmark
+            head_dims=[64, 128],  # Common head dimensions
+            num_heads=8,
+            num_runs=3
+        )
+        
+        # Print summary
+        benchmark.print_summary()
+        
+        # Save results
+        benchmark_file = Path(args.output_dir) / "flash_attention_benchmark.json"
+        benchmark_file.parent.mkdir(parents=True, exist_ok=True)
+        benchmark.save_results(str(benchmark_file))
+        
+    except Exception as e:
+        print(f"⚠️ Benchmark failed: {e}")
+
+def iterate_batches(dataset, tokenizer, batch_size, max_seq_length, train=False):
     """Generate batches from dataset"""
     while True:
         indices = np.arange(len(dataset))

@@ -94,39 +94,85 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Logs
+# Flow2 Data Organization
+# Keep benchmark results but ignore some large/temporary files
+data/results/*.csv
+data/results/*.log
+data/results/temp/
+data/results/cache/
+
+# Keep some output examples but ignore large temporary outputs
+data/outputs/temp_*/
+data/outputs/test_*/
+data/outputs/benchmark_*/
+data/outputs/cache/
+
+# Logs and temporary files
 *.log
 logs/
 *.log.*
+model_manager.log
+quantization.log
+training.log
 
-# Large model files (keep small example adapters)
-# models/ - commented out to keep example models
+# Large model files (selectively ignore large models while keeping examples)
+models/*/*.bin
+models/*/*.pt
+models/*/*.pth
+models/*/pytorch_model.bin
+models/cache/
 *.pkl
-*.pt  
-*.pth
+
+# Safetensors files larger than 100MB (keep small adapters)
+# Note: Git LFS should be used for large model files
+models/*/model.safetensors
+models/*/model-*.safetensors
+
+# Training and fine-tuning temporary outputs
+checkpoints/
+wandb/
+tensorboard_logs/
+*.checkpoint
+*.ckpt
+
+# Benchmark and test artifacts
+benchmark_results/
+*.benchmark
+test_results/
+performance_*.json
+*.prof
+*.profile
 
 # Temporary files
 tmp/
 temp/
 *.tmp
 *.temp
+scratch/
 
-# Cache
+# Cache directories
 .cache/
 *.cache
-
-# Test artifacts
+__pycache__/
 .pytest_cache/
+mlx_cache/
+llama_cache/
+hf_cache/
+
+# Coverage and testing
 .coverage
 htmlcov/
 .tox/
 .nox/
+.pytest_cache/
+coverage.xml
 
 # Documentation builds
 docs/_build/
 site/
+_site/
 
-# Database
+# Database files
 *.db
 *.sqlite
 *.sqlite3
@@ -135,38 +181,46 @@ site/
 config.json
 secrets.json
 credentials.json
+api_keys.json
+.secrets
 
 # Backup files
 *.bak
 *.backup
 *.orig
+*~
 
 # IDE/Editor files
 *.swp
 *.swo
-*~
+.vscode/settings.json
+.idea/
 
 # Git
-.git/
-
-# Data and results
-data/results/
-benchmark_results/
-*.benchmark
-
-# Output directories (keep examples/outputs tracked)
-output/
-results/
-quantized_models/
-
-# Training artifacts (keep example adapters in examples/outputs)
-*.adapters
-checkpoints/
+.git/index.lock
 
 # MLX specific
 *.mlx
-mlx_cache/
+.mlx/
 
 # LlamaCpp specific  
 *.gguf.tmp
-llama_cache/
+llama.cpp/
+llamacpp-setup/
+
+# HuggingFace specific
+.huggingface/
+transformers_cache/
+
+# Apple Silicon / MPS specific
+mps_cache/
+metal_cache/
+
+# Training output directories (temporary test outputs)
+*_test_output/
+*_benchmark_output/
+*_training_output/
+
+# Flash Attention specific
+flash_attention_cache/
+*.flash

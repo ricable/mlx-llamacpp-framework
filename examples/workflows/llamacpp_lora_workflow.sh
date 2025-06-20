@@ -6,8 +6,8 @@ set -e
 # Configuration
 LLAMA_CPP_DIR="/Users/cedric/dev/ran/flow2/llama.cpp-setup"
 MODEL_PATH="${LLAMA_CPP_DIR}/models/llama-2-7b-q4_0.gguf"
-DATASET_DIR="/Users/cedric/dev/ran/flow2/fine_tuning_utils/examples/data"
-OUTPUT_DIR="/Users/cedric/dev/ran/flow2/fine_tuning_utils/examples/output/llamacpp_lora"
+DATASET_DIR="/Users/cedric/dev/ran/flow2/data/datasets"
+OUTPUT_DIR="/Users/cedric/dev/ran/flow2/data/outputs/llamacpp_lora"
 
 echo "Starting llama.cpp LoRA fine-tuning workflow"
 echo "============================================="

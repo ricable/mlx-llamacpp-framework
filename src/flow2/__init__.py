@@ -16,7 +16,7 @@ Key Features:
 
 Modules:
     core: Core functionality and Flash Attention implementation
-    frameworks: Framework-specific implementations (MLX, LlamaCpp)
+    frameworks: Framework-specific implementations (MLX, LlamaCpp, HuggingFace)
     chat: Interactive chat interfaces and utilities
     inference: Model inference and generation utilities
     training: Fine-tuning and training pipelines
@@ -50,6 +50,40 @@ try:
 except ImportError:
     LLAMACPP_AVAILABLE = False
 
+try:
+    import transformers
+    import torch
+    HUGGINGFACE_AVAILABLE = True
+    
+    # Check for additional HuggingFace capabilities
+    try:
+        import accelerate
+        ACCELERATE_AVAILABLE = True
+    except ImportError:
+        ACCELERATE_AVAILABLE = False
+    
+    try:
+        import peft
+        PEFT_AVAILABLE = True
+    except ImportError:
+        PEFT_AVAILABLE = False
+    
+    try:
+        import bitsandbytes
+        QUANTIZATION_AVAILABLE = True
+    except ImportError:
+        QUANTIZATION_AVAILABLE = False
+    
+    # Check MPS availability
+    MPS_AVAILABLE = torch.backends.mps.is_available() if hasattr(torch.backends, 'mps') else False
+    
+except ImportError:
+    HUGGINGFACE_AVAILABLE = False
+    ACCELERATE_AVAILABLE = False
+    PEFT_AVAILABLE = False
+    QUANTIZATION_AVAILABLE = False
+    MPS_AVAILABLE = False
+
 # Framework imports based on availability
 if MLX_AVAILABLE:
     from .frameworks.mlx import *
@@ -57,10 +91,18 @@ if MLX_AVAILABLE:
 if LLAMACPP_AVAILABLE:
     from .frameworks.llamacpp import *
 
+if HUGGINGFACE_AVAILABLE:
+    from .frameworks.huggingface import *
+
 __all__ = [
     "OptimizedMLXMultiHeadAttention",
     "FlashAttentionBenchmark",
     "FLASH_ATTENTION_AVAILABLE",
     "MLX_AVAILABLE", 
     "LLAMACPP_AVAILABLE",
+    "HUGGINGFACE_AVAILABLE",
+    "ACCELERATE_AVAILABLE",
+    "PEFT_AVAILABLE",
+    "QUANTIZATION_AVAILABLE",
+    "MPS_AVAILABLE",
 ]
